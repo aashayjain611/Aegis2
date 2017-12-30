@@ -34,7 +34,6 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -92,7 +91,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         initialize();
 
-        final String uid=mAuth.getCurrentUser().getUid();
         if(!isNetworkAvailable())
             Toast.makeText(ProfileActivity.this,"No internet connection",Toast.LENGTH_LONG).show();
         add_pic.setOnClickListener(new View.OnClickListener() {
@@ -122,10 +120,6 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View view) {
                 try
                 {
-                    mProgress.setTitle("Uploading");
-                    mProgress.setMessage("Please wait...");
-                    mProgress.setCanceledOnTouchOutside(false);
-                    mProgress.show();
                     HashMap<String,String> dataMap=new HashMap<String,String>();
                     String name=usr_first_name.getText().toString().trim();
                     String email=usr_email.getText().toString().trim();
@@ -138,6 +132,10 @@ public class ProfileActivity extends AppCompatActivity {
                     String contact=usr_contact.getText().toString().trim();
                     if(!validContact(contact))
                         throw new ArrayIndexOutOfBoundsException();
+                    mProgress.setTitle("Uploading");
+                    mProgress.setMessage("Please wait...");
+                    mProgress.setCanceledOnTouchOutside(false);
+                    mProgress.show();
                     dataMap.put("First name",name);
                     dataMap.put("Last name",last_name);
                     dataMap.put("DOB",dob);
@@ -146,8 +144,8 @@ public class ProfileActivity extends AppCompatActivity {
                     dataMap.put("Gender",gender);
                     Log.e("thumbnail ",thumb_uri.toString());
                     dataMap.put("Image",thumb_uri.toString());
-                    dataMap.put("UID",uid);
-                    mDatabase.child(uid).setValue(dataMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    dataMap.put("UID",mAuth.getCurrentUser().getUid());
+                    mDatabase.child(mAuth.getCurrentUser().getUid()).setValue(dataMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             mProgress.dismiss();
@@ -255,11 +253,8 @@ public class ProfileActivity extends AppCompatActivity {
         inc_img=(ImageView)findViewById(R.id.user_img);
         add_pic=(ImageView) findViewById(R.id.action_add);
         save=(Button)findViewById(R.id.save);
-        mDatabase= FirebaseDatabase.getInstance().getReference().child("Users");
-        mDatabase.keepSynced(true);
         mStorage= FirebaseStorage.getInstance().getReference();
         mProgress=new ProgressDialog(this);
-        mAuth= FirebaseAuth.getInstance();
         Picasso.with(ProfileActivity.this).load(personPhoto).into(inc_img);
         spinner=(Spinner)findViewById(R.id.gender);
         thumb_uri=personPhoto;
