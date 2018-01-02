@@ -15,7 +15,8 @@
         <item
             android:id="@+id/nav_emergency"
             android:icon="@drawable/ic_menu_slideshow"
-            android:title="Emergency" />
+            android:title="Emergency"
+            android:visible="false"/>
         <item
             android:id="@+id/nav_instructions"
             android:icon="@drawable/ic_menu_manage"

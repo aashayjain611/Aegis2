@@ -7,13 +7,16 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -31,28 +34,114 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class LocationActivity extends AppCompatActivity
-{
+
+/**
+ * A simple {@link Fragment} subclass.
+ * Activities that contain this fragment must implement the
+ * {@link EmergencyFragment.OnFragmentInteractionListener} interface
+ * to handle interaction events.
+ * Use the {@link EmergencyFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class EmergencyFragment extends Fragment {
+    // TODO: Rename parameter arguments, choose names that match
+    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
+
+    // TODO: Rename and change types of parameters
+    private String mParam1;
+    private String mParam2;
+    private View mView;
     private Location mylocation;
     private GoogleApiClient googleApiClient;
     private final static int REQUEST_CHECK_SETTINGS_GPS=0x1;
     private final static int REQUEST_ID_MULTIPLE_PERMISSIONS=0x2;
     private double longitude,latitude;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_location);
 
+    private OnFragmentInteractionListener mListener;
+
+    public EmergencyFragment() {
+        // Required empty public constructor
+    }
+
+    /**
+     * Use this factory method to create a new instance of
+     * this fragment using the provided parameters.
+     *
+     * @param param1 Parameter 1.
+     * @param param2 Parameter 2.
+     * @return A new instance of fragment EmergencyFragment.
+     */
+    // TODO: Rename and change types and number of parameters
+    public static EmergencyFragment newInstance(String param1, String param2) {
+        EmergencyFragment fragment = new EmergencyFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        mView=inflater.inflate(R.layout.fragment_emergency, container, false);
+        return mView;
+    }
+
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        MainActivity.fab.setVisibility(View.GONE);
         setUpGClient();
     }
 
-    private synchronized void setUpGClient() {
-        googleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this, 0, new GoogleApiClient.OnConnectionFailedListener() {
-                    @Override
-                    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
 
-                    }
-                })
+    /**
+     * This interface must be implemented by activities that contain this
+     * fragment to allow an interaction in this fragment to be communicated
+     * to the activity and potentially other fragments contained in that
+     * activity.
+     * <p>
+     * See the Android Training lesson <a href=
+     * "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
+    }
+
+    private synchronized void setUpGClient() {
+        googleApiClient = new GoogleApiClient.Builder(getContext()).enableAutoManage(getActivity(), 0, new GoogleApiClient.OnConnectionFailedListener() {
+            @Override
+            public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+            }
+        })
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
@@ -82,11 +171,9 @@ public class LocationActivity extends AppCompatActivity
     private void getMyLocation(){
         if(googleApiClient!=null) {
             if (googleApiClient.isConnected()) {
-                //Log.e("Location",mylocation.toString());
-                int permissionLocation = ContextCompat.checkSelfPermission(LocationActivity.this,
+                int permissionLocation = ContextCompat.checkSelfPermission(getContext(),
                         android.Manifest.permission.ACCESS_FINE_LOCATION);
                 if (permissionLocation == PackageManager.PERMISSION_GRANTED) {
-                    Log.e("Hello","World");
                     mylocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
                     LocationRequest locationRequest = new LocationRequest();
                     locationRequest.setInterval(200);
@@ -95,35 +182,26 @@ public class LocationActivity extends AppCompatActivity
                     LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                             .addLocationRequest(locationRequest);
                     builder.setAlwaysShow(true);
-                    Log.e("HEllo","Guys");
                     LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, new LocationListener()
                     {
                         @Override
                         public void onLocationChanged(Location location) {
                             mylocation = location;
-                            Log.e("Location",mylocation.toString());
                             if (mylocation != null)
                             {
-                                LocationActivity.this.latitude=mylocation.getLatitude();
-                                LocationActivity.this.longitude=mylocation.getLongitude();
+                                latitude=mylocation.getLatitude();
+                                longitude=mylocation.getLongitude();
                                 //Or Do whatever you want with your location
 
                                 Geocoder geocoder;
                                 List<Address> addresses;
-                                geocoder = new Geocoder(LocationActivity.this, Locale.getDefault());
+                                geocoder = new Geocoder(getContext(), Locale.getDefault());
 
                                 try {
                                     addresses = geocoder.getFromLocation(latitude, longitude, 1);
                                     String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-                                    String city = addresses.get(0).getLocality();
-                                    String state = addresses.get(0).getAdminArea();
-                                    String country = addresses.get(0).getCountryName();
-                                    String postalCode = addresses.get(0).getPostalCode();
-                                    String knownName = addresses.get(0).getFeatureName();
-                                    //latitudeTextView.setText("Latitude : "+latitude);
-                                    //longitudeTextView.setText("Longitude : "+longitude);
-                                    TextView addressText=(TextView)findViewById(R.id.address);
-                                    addressText.setText(address+"\n"+city+"\n"+state+"\n"+country+"\n"+postalCode+"\n"+knownName);
+                                    TextView addressText=(TextView)mView.findViewById(R.id.location);
+                                    addressText.setText(address);
                                     // Here 1 represent max location result to returned, by documents it recommended 1 to 5
                                 } catch (IOException e) {
                                     e.printStackTrace();
@@ -144,7 +222,7 @@ public class LocationActivity extends AppCompatActivity
                                     // All location settings are satisfied.
                                     // You can initialize location requests here.
                                     int permissionLocation = ContextCompat
-                                            .checkSelfPermission(LocationActivity.this,
+                                            .checkSelfPermission(getActivity(),
                                                     android.Manifest.permission.ACCESS_FINE_LOCATION);
                                     if (permissionLocation == PackageManager.PERMISSION_GRANTED) {
                                         mylocation = LocationServices.FusedLocationApi
@@ -158,7 +236,7 @@ public class LocationActivity extends AppCompatActivity
                                         // Show the dialog by calling startResolutionForResult(),
                                         // and check the result in onActivityResult().
                                         // Ask to turn on GPS automatically
-                                        status.startResolutionForResult(LocationActivity.this,
+                                        status.startResolutionForResult(getActivity(),
                                                 REQUEST_CHECK_SETTINGS_GPS);
                                     } catch (IntentSender.SendIntentException e) {
                                         // Ignore the error.
@@ -180,7 +258,7 @@ public class LocationActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case REQUEST_CHECK_SETTINGS_GPS:
                 switch (resultCode) {
@@ -188,7 +266,7 @@ public class LocationActivity extends AppCompatActivity
                         getMyLocation();
                         break;
                     case Activity.RESULT_CANCELED:
-                        finish();
+                        getActivity().finish();
                         break;
                 }
                 break;
@@ -196,13 +274,13 @@ public class LocationActivity extends AppCompatActivity
     }
 
     private void checkPermissions(){
-        int permissionLocation = ContextCompat.checkSelfPermission(LocationActivity.this,
+        int permissionLocation = ContextCompat.checkSelfPermission(getContext(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
         List<String> listPermissionsNeeded = new ArrayList<>();
         if (permissionLocation != PackageManager.PERMISSION_GRANTED) {
             listPermissionsNeeded.add(android.Manifest.permission.ACCESS_FINE_LOCATION);
             if (!listPermissionsNeeded.isEmpty()) {
-                ActivityCompat.requestPermissions(this,
+                ActivityCompat.requestPermissions(getActivity(),
                         listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
             }
         }else{
@@ -213,10 +291,11 @@ public class LocationActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        int permissionLocation = ContextCompat.checkSelfPermission(LocationActivity.this,
+        int permissionLocation = ContextCompat.checkSelfPermission(getActivity(),
                 android.Manifest.permission.ACCESS_FINE_LOCATION);
         if (permissionLocation == PackageManager.PERMISSION_GRANTED) {
             getMyLocation();
         }
     }
+
 }

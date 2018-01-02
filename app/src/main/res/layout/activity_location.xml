@@ -7,6 +7,9 @@
     tools:context="com.example.android.spitit.LocationActivity"
     android:orientation="vertical">
 
+    <include layout="@layout/main_toolbar"
+        android:id="@+id/location_toolbar"/>
+
     <TextView
         android:id="@+id/latitude"
         android:layout_width="match_parent"
@@ -15,6 +18,12 @@
 
     <TextView
         android:id="@+id/longitude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"/>
+
+    <TextView
+        android:id="@+id/address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"/>
