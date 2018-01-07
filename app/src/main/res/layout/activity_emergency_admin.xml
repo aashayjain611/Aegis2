@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.spitit.EmergencyFragment">
+    tools:context="com.example.android.spitit.EmergencyAdminActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -53,25 +53,22 @@
                     android:id="@+id/fire"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Fire"
-                    android:layout_weight="1"/>
+                    android:text="Fire"/>
 
                 <CheckBox
                     android:id="@+id/earthquake"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Earthquake"
-                    android:layout_weight="1"/>
+                    android:text="Earthquake"/>
 
                 <CheckBox
-                    android:id="@+id/others"
+                    android:id="@+id/other"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:text="Other"
-                    android:layout_weight="1"/>
+                    android:text="Other"/>
 
                 <EditText
-                    android:id="@+id/others_edit_text"
+                    android:id="@+id/other_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Describe emergency"
@@ -103,9 +100,10 @@
                     android:id="@+id/blueprint"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/border"
                     android:adjustViewBounds="true"
-                    android:scaleType="fitXY"/>
+                    android:scaleType="fitXY"
+                    android:background="@drawable/border"
+                    android:contentDescription="Blueprint" />
 
                 <ImageButton
                     android:id="@+id/action_add_img"
@@ -139,6 +137,7 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/emergency_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Emergency"

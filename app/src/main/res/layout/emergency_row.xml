@@ -14,27 +14,15 @@
             android:id="@+id/emergency_img"
             android:layout_width="match_parent"
             android:layout_height="150dp"
-            android:src="@drawable/fire"
-            android:scaleType="fitXY"
+            android:src="@drawable/emergency"
             app:riv_corner_radius="5dp"/>
-
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/emergency_img"
-            android:textSize="24sp"
-            android:text="Title"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textColor="#000000"/>
 
         <LinearLayout
             android:id="@+id/location_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
-            android:layout_below="@+id/title">
+            android:layout_below="@+id/emergency_img">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -47,7 +35,8 @@
                 android:id="@+id/location_card_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="12sp"/>
+                android:textSize="18sp"
+                android:layout_gravity="center"/>
 
         </LinearLayout>
 
@@ -69,7 +58,8 @@
                 android:id="@+id/emergency_card_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="12sp"/>
+                android:textSize="18sp"
+                android:layout_gravity="center"/>
 
         </LinearLayout>
 
@@ -91,7 +81,31 @@
                 android:id="@+id/tip_card_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textSize="12sp"/>
+                android:textSize="18sp"
+                android:layout_gravity="center" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/people_left_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:layout_below="@+id/tip_layout">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="People left: "
+                android:textStyle="bold"
+                android:textSize="18sp"/>
+
+            <TextView
+                android:id="@+id/people_left_card_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="18sp"
+                android:layout_gravity="center"/>
 
         </LinearLayout>
 

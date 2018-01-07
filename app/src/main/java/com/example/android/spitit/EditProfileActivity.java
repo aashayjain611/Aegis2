@@ -1,12 +1,10 @@
 package com.example.android.spitit;
 
-import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -15,7 +13,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -33,10 +30,10 @@ import android.widget.Toast;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -51,9 +48,8 @@ import java.util.HashMap;
 
 import id.zelory.compressor.Compressor;
 
-public class ProfileActivity extends AppCompatActivity {
+public class EditProfileActivity extends AppCompatActivity {
 
-    private static final int READ_EXTERNAL_STORAGE_PERMISSIONS_REQUEST = 12;
     private android.support.v7.widget.Toolbar toolbar;
     private TextInputEditText usr_contact;
     private EditText usr_first_name,usr_last_name,usr_email;
@@ -96,7 +92,7 @@ public class ProfileActivity extends AppCompatActivity {
         initialize();
 
         if(!isNetworkAvailable())
-            Toast.makeText(ProfileActivity.this,"No internet connection",Toast.LENGTH_LONG).show();
+            Toast.makeText(EditProfileActivity.this,"No internet connection",Toast.LENGTH_LONG).show();
         add_pic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -124,10 +120,6 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View view) {
                 try
                 {
-                    mProgress.setTitle("Uploading");
-                    mProgress.setMessage("Please wait...");
-                    mProgress.setCanceledOnTouchOutside(false);
-                    mProgress.show();
                     HashMap<String,String> dataMap=new HashMap<String,String>();
                     String name=usr_first_name.getText().toString().trim();
                     String email=usr_email.getText().toString().trim();
@@ -140,6 +132,10 @@ public class ProfileActivity extends AppCompatActivity {
                     String contact=usr_contact.getText().toString().trim();
                     if(!validContact(contact))
                         throw new ArrayIndexOutOfBoundsException();
+                    mProgress.setTitle("Uploading");
+                    mProgress.setMessage("Please wait...");
+                    mProgress.setCanceledOnTouchOutside(false);
+                    mProgress.show();
                     dataMap.put("First name",name);
                     dataMap.put("Last name",last_name);
                     dataMap.put("DOB",dob);
@@ -147,81 +143,31 @@ public class ProfileActivity extends AppCompatActivity {
                     dataMap.put("Contact",contact);
                     dataMap.put("Gender",gender);
                     Log.e("thumbnail ",thumb_uri.toString());
-                    if (thumb_uri != null)
-                        dataMap.put("Image",thumb_uri.toString());
-                    else
-                        dataMap.put("Image",personPhoto.toString());
-                    Log.e("Iski jaat ka","samosa");
+                    dataMap.put("Image",thumb_uri.toString());
                     dataMap.put("UID",mAuth.getCurrentUser().getUid());
-                    System.out.println(dataMap);
-                    mDatabase.child(mAuth.getCurrentUser().getUid()).setValue(dataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    mDatabase.child(mAuth.getCurrentUser().getUid()).setValue(dataMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
-                        public void onComplete(@NonNull Task<Void> task) {
+                        public void onSuccess(Void aVoid) {
                             mProgress.dismiss();
-                            Intent main=new Intent(ProfileActivity.this,MainActivity.class);
-                            main.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(main);
-                            finish();
                         }
                     });
+                    startActivity(new Intent(EditProfileActivity.this,MainActivity.class));
+                    finish();
                 }
                 catch (NullPointerException e)
                 {
-                    Toast.makeText(ProfileActivity.this,"Field(s) cannot be blank",Toast.LENGTH_LONG).show();
+                    Toast.makeText(EditProfileActivity.this,"Field(s) cannot be blank",Toast.LENGTH_LONG).show();
                 }
                 catch (IllegalArgumentException iae)
                 {
-                    Toast.makeText(ProfileActivity.this,"Invalid Email-ID",Toast.LENGTH_LONG).show();
+                    Toast.makeText(EditProfileActivity.this,"Invalid Email-ID",Toast.LENGTH_LONG).show();
                 }
                 catch (ArrayIndexOutOfBoundsException aiobe)
                 {
-                    Toast.makeText(ProfileActivity.this,"Invalid contact",Toast.LENGTH_LONG).show();
+                    Toast.makeText(EditProfileActivity.this,"Invalid contact",Toast.LENGTH_LONG).show();
                 }
             }
         });
-    }
-
-    public void getPermissionToReadExternalStorage() {
-        // 1) Use the support library version ContextCompat.checkSelfPermission(...) to avoid
-        // checking the build version since Context.checkSelfPermission(...) is only available
-        // in Marshmallow
-        // 2) Always check for permission (even if permission has already been granted)
-        // since the user can revoke permissions at any time through Settings
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // The permission is NOT already granted.
-            // Check if the user has been asked about this permission already and denied
-            // it. If so, we want to give more explanation about why the permission is needed.
-            if (shouldShowRequestPermissionRationale(
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                // Show our own UI to explain to the user why we need to read the contacts
-                // before actually requesting the permission and showing the default UI
-            }
-
-            // Fire off an async request to actually get the permission
-            // This will show the standard permission request dialog UI
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    READ_EXTERNAL_STORAGE_PERMISSIONS_REQUEST);
-        }
-    }
-
-    // Callback with the request from calling requestPermissions(...)
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String permissions[],
-                                           @NonNull int[] grantResults) {
-        // Make sure it's our original READ_CONTACTS request
-        if (requestCode == READ_EXTERNAL_STORAGE_PERMISSIONS_REQUEST) {
-            if (grantResults.length == 1 &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Read Contacts permission granted", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(this, "Read Contacts permission denied", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
     }
 
     @Override
@@ -279,7 +225,7 @@ public class ProfileActivity extends AppCompatActivity {
                                         mProgress.dismiss();
                                         thumb_uri=thumb_task.getResult().getDownloadUrl();
                                         Log.e("thumbnail ",thumb_uri.toString());
-                                        Picasso.with(ProfileActivity.this).load(thumb_uri).into(inc_img);
+                                        Picasso.with(EditProfileActivity.this).load(thumb_uri).into(inc_img);
                                     }
                                     progressBar.setVisibility(View.GONE);
                                 }
@@ -296,8 +242,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     public void initialize()
     {
-        mDatabase= FirebaseDatabase.getInstance().getReference().child("Users");
-        mAuth=FirebaseAuth.getInstance();
         usr_first_name=(EditText) findViewById(R.id.user_first_name);
         usr_first_name.setText(personGivenName);
         usr_last_name=(EditText)findViewById(R.id.user_last_name);
@@ -311,10 +255,9 @@ public class ProfileActivity extends AppCompatActivity {
         save=(Button)findViewById(R.id.save);
         mStorage= FirebaseStorage.getInstance().getReference();
         mProgress=new ProgressDialog(this);
-        Picasso.with(ProfileActivity.this).load(personPhoto).into(inc_img);
+        Picasso.with(EditProfileActivity.this).load(personPhoto).into(inc_img);
         spinner=(Spinner)findViewById(R.id.gender);
         thumb_uri=personPhoto;
-        getPermissionToReadExternalStorage();
     }
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
