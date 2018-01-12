@@ -97,27 +97,33 @@ public class MainActivity extends AppCompatActivity
                 mDatabase.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        contacts.add(dataSnapshot.child("Person1").child("Phone").getValue().toString());
-                        contacts.add(dataSnapshot.child("Person2").child("Phone").getValue().toString());
-                        contacts.add(dataSnapshot.child("Person3").child("Phone").getValue().toString());
-                        new AlertDialog.Builder(MainActivity.this)
-                                .setMessage("Are you sure you want to send message?")
-                                .setCancelable(false)
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        try {
-                                            requestSmsPermission();
-                                        } catch (Exception ex) {
-                                            Toast.makeText(getApplicationContext(),ex.getMessage().toString(),
-                                                    Toast.LENGTH_LONG).show();
-                                            ex.printStackTrace();
+                        try
+                        {
+                            contacts.add(dataSnapshot.child("Person1").child("Phone").getValue().toString());
+                            contacts.add(dataSnapshot.child("Person2").child("Phone").getValue().toString());
+                            contacts.add(dataSnapshot.child("Person3").child("Phone").getValue().toString());
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setMessage("Are you sure you want to send message?")
+                                    .setCancelable(false)
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            try {
+                                                requestSmsPermission();
+                                            } catch (Exception ex) {
+                                                Toast.makeText(getApplicationContext(),ex.getMessage().toString(),
+                                                        Toast.LENGTH_LONG).show();
+                                                ex.printStackTrace();
+                                            }
+                                            Snackbar.make(view, "Message sent successfully", Snackbar.LENGTH_LONG).setAction("Action", null).show();
                                         }
-                                        Snackbar.make(view, "Message sent successfully", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-                                    }
-                                })
-                                .setNegativeButton("No", null)
-                                .show()
-                                .setCanceledOnTouchOutside(false);
+                                    })
+                                    .setNegativeButton("No", null)
+                                    .show();
+                        }
+                        catch (NullPointerException npe)
+                        {
+                            Toast.makeText(MainActivity.this,"Contacts not selected",Toast.LENGTH_LONG).show();
+                        }
                     }
 
                     @Override
@@ -251,7 +257,6 @@ public class MainActivity extends AppCompatActivity
                                         throw new IllegalArgumentException();
                                 }
                             }
-                            googleApiClient.disconnect();
                             Intent intent=new Intent(MainActivity.this,EmergencyAdminActivity.class);
                             intent.putExtra("Location",knownName+"\n"+mLocation);
                             startActivity(intent);
@@ -403,6 +408,7 @@ public class MainActivity extends AppCompatActivity
                             }
                         }
                     });
+
                     PendingResult<LocationSettingsResult> result =
                             LocationServices.SettingsApi
                                     .checkLocationSettings(googleApiClient, builder.build());

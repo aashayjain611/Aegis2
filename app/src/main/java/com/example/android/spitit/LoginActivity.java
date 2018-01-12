@@ -35,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private int RC_SIGN_IN = 2;
     private String TAG = "LOGIN ACTIVITY";
     private DatabaseReference mDatabase;
+    private FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,9 +69,7 @@ public class LoginActivity extends AppCompatActivity {
     }
     private void updateUI(final FirebaseUser user)
     {
-        mAuth= FirebaseAuth.getInstance();
         mDatabase= FirebaseDatabase.getInstance().getReference().child("Users");
-        mDatabase.keepSynced(true);
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -89,7 +88,6 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(profile);
                     finish();
                 }
-
             }
 
             @Override
@@ -152,8 +150,19 @@ public class LoginActivity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        updateUI(currentUser);
+
+        mAuthListener=new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+
+                Log.e("User",firebaseAuth.getUid());
+                if(firebaseAuth.getCurrentUser()!=null)
+                    updateUI(firebaseAuth.getCurrentUser());
+
+            }
+        };
+
+        mAuth.addAuthStateListener(mAuthListener);
     }
 }
 

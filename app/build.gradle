@@ -43,5 +43,8 @@ dependencies {
     compile 'com.theartofdev.edmodo:android-image-cropper:2.5.+'
     compile 'com.makeramen:roundedimageview:2.3.0'
     compile 'id.zelory:compressor:2.1.0'
+
+    compile 'com.google.android.gms:play-services-location:11.8.0'
+    compile 'com.google.android.gms:play-services-maps:11.8.0'
 }
 apply plugin: 'com.google.gms.google-services'
